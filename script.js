@@ -451,28 +451,11 @@ async function signIn() {
       prompt: "select_account"
     };
 
-    // Try popup first
-    try {
-      console.log("Attempting popup login...");
-      const response = await msalInstance.loginPopup(loginRequest);
-      console.log("Popup login response:", response);
-      
-      if (response) {
-        const account = response.account;
-        msalInstance.setActiveAccount(account);
-        showWelcomeUI(account);
-        getTokenAndLoadMembers();
-        return;
-      }
-    } catch (popupError) {
-      console.log("Popup failed, falling back to redirect:", popupError);
-    }
-
-    // Fallback to redirect
+    // Use redirect instead of popup for better compatibility
     console.log("Attempting redirect login...");
     await msalInstance.loginRedirect(loginRequest);
   } catch (error) {
     console.error("Error during sign in:", error);
-    alert("Sign in failed. Please try again. If the issue persists, please check your browser's popup blocker settings.");
+    alert("Sign in failed. Please try again.");
   }
 } 
