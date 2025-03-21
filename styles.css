@@ -1,0 +1,266 @@
+body { 
+  background-color: var(--bs-body-bg); 
+}
+
+.contact-card:hover { 
+  background-color: var(--bs-gray-100);
+  cursor: pointer;
+  transform: translateY(-2px);
+}
+
+[data-bs-theme="dark"] .contact-card:hover {
+  background-color: var(--bs-gray-800);
+}
+
+.navbar-text { 
+  color: white !important; 
+}
+
+.nav-link { 
+  color: rgba(255,255,255,.85) !important; 
+}
+
+.nav-link:hover { 
+  color: white !important; 
+}
+
+.nav-item { 
+  display: flex; 
+  align-items: center; 
+}
+
+.contact-stats {
+  background: var(--bs-gray-100);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--bs-gray-200);
+}
+
+[data-bs-theme="dark"] .contact-stats {
+  background: var(--bs-gray-800);
+  border-color: var(--bs-gray-700);
+}
+
+.stats-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--bs-primary);
+}
+
+.stats-number {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.microsoft-btn {
+  background-color: white;
+  color: #2F2F2F;
+  padding: 10px 20px;
+  border: 1px solid #2F2F2F;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px auto;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.microsoft-btn:hover {
+  background-color: #f8f9fa;
+}
+
+.microsoft-logo {
+  width: 24px;
+  height: 24px;
+}
+
+.ms-square-orange { fill: #F25022; }
+.ms-square-green { fill: #7FBA00; }
+.ms-square-blue { fill: #00A4EF; }
+.ms-square-yellow { fill: #FFB900; }
+
+.copyable {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.copyable:hover {
+  background-color: var(--bs-gray-200);
+}
+
+[data-bs-theme="dark"] .copyable:hover {
+  background-color: var(--bs-gray-700);
+}
+
+.copy-feedback {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: var(--bs-success);
+  color: white;
+  border-radius: 4px;
+  display: none;
+  z-index: 1050;
+}
+
+.profile-pic {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--bs-gray-200);
+}
+
+.profile-pic-lg {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--bs-gray-200);
+}
+
+[data-bs-theme="dark"] .profile-pic,
+[data-bs-theme="dark"] .profile-pic-lg {
+  background-color: var(--bs-gray-700);
+}
+
+.department-select {
+  border-color: var(--bs-gray-300);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .department-select {
+  border-color: var(--bs-gray-600);
+}
+
+.skeleton {
+  animation: skeleton-loading 1s linear infinite alternate;
+  border-radius: 4px;
+  background: var(--bs-gray-200);
+}
+
+[data-bs-theme="dark"] .skeleton {
+  background: var(--bs-gray-700);
+}
+
+@keyframes skeleton-loading {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.skeleton-card {
+  height: 144px;
+  margin-bottom: 1rem;
+}
+
+.skeleton-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+  width: 80%;
+}
+
+.skeleton-text-sm {
+  height: 0.875rem;
+  margin-bottom: 0.5rem;
+  width: 60%;
+}
+
+.badge-department {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--bs-gray-200);
+  color: var(--bs-gray-700);
+  border-radius: 12px;
+}
+
+[data-bs-theme="dark"] .badge-department {
+  background-color: var(--bs-gray-700);
+  color: var(--bs-gray-300);
+}
+
+.contact-card {
+  transition: transform 0.2s ease;
+}
+
+.quick-actions {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.contact-card:hover .quick-actions {
+  opacity: 1;
+}
+
+.btn-quick-action {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--bs-gray-600);
+  background: var(--bs-gray-100);
+  border: 1px solid var(--bs-gray-300);
+  margin-left: 0.25rem;
+  border-radius: 4px;
+}
+
+[data-bs-theme="dark"] .btn-quick-action {
+  color: var(--bs-gray-300);
+  background: var(--bs-gray-800);
+  border-color: var(--bs-gray-700);
+}
+
+.btn-quick-action:hover {
+  color: var(--bs-primary);
+  background: var(--bs-gray-200);
+}
+
+[data-bs-theme="dark"] .btn-quick-action:hover {
+  background: var(--bs-gray-700);
+}
+
+@media (max-width: 768px) {
+  .contact-stats {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .stats-number {
+    font-size: 1.1rem;
+  }
+  .contact-card {
+    padding: 0.75rem !important;
+  }
+  .contact-card .profile-pic {
+    width: 36px;
+    height: 36px;
+  }
+  .contact-card h5 {
+    font-size: 1rem;
+  }
+  .contact-card .card-text {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem !important;
+  }
+  .contact-card strong {
+    display: inline-block;
+    width: 75px;
+  }
+  .quick-actions {
+    opacity: 1;
+    position: static;
+    margin-top: 0.5rem;
+  }
+} 

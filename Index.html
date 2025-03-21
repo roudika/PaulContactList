@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Microsoft 365 Group Contacts</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- MSAL.js -->
+  <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+  <div class="container">
+    <div class="d-flex align-items-center">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <i class="bi bi-people-fill me-2"></i>PAUL Contacts
+      </a>
+      <div class="vr text-white opacity-75 mx-3"></div>
+      <span id="contactCount" class="navbar-text">
+        <i class="bi bi-person-vcard-fill me-1"></i>
+        <span id="totalContacts">0</span>
+      </span>
+    </div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto align-items-center gap-3">
+        <li class="nav-item">
+          <span id="userGreeting" class="navbar-text d-none">
+            <i class="bi bi-person-circle me-1"></i>
+            Hello, Guest!
+          </span>
+        </li>
+        <li class="nav-item">
+          <button id="darkModeToggle" class="btn btn-outline-light btn-sm rounded-pill" title="Toggle dark mode">
+            <i class="bi bi-moon-fill"></i>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button id="logoutBtn" class="btn btn-outline-light btn-sm rounded-pill d-none">
+            <i class="bi bi-box-arrow-right me-1"></i>Logout
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Copy feedback toast -->
+<div id="copyFeedback" class="copy-feedback">
+  Copied to clipboard!
+</div>
+
+<!-- Sign In Modal -->
+<div class="modal fade" id="signInModal" tabindex="-1" aria-labelledby="signInModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="signInModalLabel">Sign in to PAUL Contacts</h5>
+      </div>
+      <div class="modal-body text-center">
+        <p>Please sign in with your Microsoft account to access the contacts.</p>
+        <button id="signin" class="microsoft-btn">
+          <svg class="microsoft-logo" viewBox="0 0 23 23">
+            <path class="ms-square-orange" d="M0 0h11v11H0z"/>
+            <path class="ms-square-green" d="M12 0h11v11H12z"/>
+            <path class="ms-square-blue" d="M0 12h11v11H0z"/>
+            <path class="ms-square-yellow" d="M12 12h11v11H12z"/>
+          </svg>
+          Sign in with Microsoft
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container my-4">
+  <!-- Stats Section -->
+  <div class="contact-stats">
+    <div class="row align-items-center">
+      <div class="col-auto d-none d-sm-block">
+        <div class="stats-item">
+          <i class="bi bi-people-fill fs-4"></i>
+          <div class="stats-number" id="totalContactsLarge">0</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="input-group">
+          <span class="input-group-text border-0 bg-transparent">
+            <i class="bi bi-search"></i>
+          </span>
+          <input id="searchInput" type="text" class="form-control border-0 shadow-none" placeholder="Search by name or email...">
+          <select id="departmentSelect" class="form-select department-select border-0 shadow-none" style="max-width: 200px;">
+            <option value="">All Departments</option>
+          </select>
+          <select id="sortSelect" class="form-select department-select border-0 shadow-none" style="max-width: 150px;">
+            <option value="name">Sort by Name</option>
+            <option value="department">Sort by Department</option>
+            <option value="title">Sort by Title</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading" class="text-muted mb-3 d-none">
+    <i class="bi bi-arrow-repeat spin me-1"></i>
+    Loading members...
+  </div>
+
+  <div id="skeletonList" class="row g-3 d-none">
+    <!-- Skeleton loading cards -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm p-3 skeleton-card skeleton"></div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm p-3 skeleton-card skeleton"></div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm p-3 skeleton-card skeleton"></div>
+    </div>
+  </div>
+
+  <div id="contactList" class="row g-3"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailsModalLabel">Contact Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalBodyContent">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
