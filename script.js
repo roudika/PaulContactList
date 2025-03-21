@@ -55,6 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupEventListeners() {
+  // Add sign in button handler
+  document.getElementById('signin').addEventListener('click', signIn);
+
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
     // Ctrl/Cmd + K for search focus
@@ -403,4 +406,22 @@ function copyToClipboard(text) {
       feedback.style.display = 'none';
     }, 2000);
   });
+}
+
+// Add this new function after setupEventListeners
+async function signIn() {
+  try {
+    const loginRequest = {
+      scopes: ["User.Read", "GroupMember.Read.All"]
+    };
+
+    await msalInstance.loginPopup(loginRequest);
+    const account = msalInstance.getAllAccounts()[0];
+    msalInstance.setActiveAccount(account);
+    showWelcomeUI(account);
+    getTokenAndLoadMembers();
+  } catch (error) {
+    console.error("Error during sign in:", error);
+    alert("Sign in failed. Please try again.");
+  }
 } 
