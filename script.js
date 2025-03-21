@@ -3,7 +3,7 @@ const msalConfig = {
   auth: {
     clientId: "b1f8ddfa-6663-4192-9137-5c30eb6673ae",
     authority: "https://login.microsoftonline.com/2b21e8b5-c462-4f9d-952f-f47b9456b623",
-    redirectUri: window.location.origin + window.location.pathname
+    redirectUri: "https://roudika.github.io/PaulContactList/index.html"
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -60,8 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set up event listeners
   setupEventListeners();
   
-  // Show sign-in modal by default
-  signInModal.show();
+  // Check if we're returning from a redirect
+  const currentAccounts = msalInstance.getAllAccounts();
+  if (!currentAccounts || currentAccounts.length === 0) {
+    // Show sign-in modal only if we're not returning from a redirect
+    signInModal.show();
+  }
 });
 
 function setupEventListeners() {
@@ -136,6 +140,7 @@ function setupEventListeners() {
 }
 
 function handleResponse(resp) {
+  console.log("Handling response:", resp);
   if (resp !== null) {
     // If response is non-null, process it
     const account = resp.account;
@@ -147,14 +152,8 @@ function handleResponse(resp) {
     const currentAccounts = msalInstance.getAllAccounts();
     if (!currentAccounts || currentAccounts.length === 0) {
       // No accounts, show sign in modal
-      const signInModal = document.getElementById('signInModal');
-      const modalInstance = bootstrap.Modal.getInstance(signInModal);
-      if (modalInstance) {
-        modalInstance.hide();
-        const backdrop = document.querySelector('.modal-backdrop');
-        if (backdrop) backdrop.remove();
-        document.body.classList.remove('modal-open');
-      }
+      const signInModal = new bootstrap.Modal(document.getElementById('signInModal'));
+      signInModal.show();
     } else {
       // Account exists, set active account and show welcome
       msalInstance.setActiveAccount(currentAccounts[0]);
@@ -196,14 +195,23 @@ async function getTokenAndLoadMembers() {
   } catch (error) {
     if (error instanceof msal.InteractionRequiredAuthError) {
       try {
-        const tokenResponse = await msalInstance.acquireTokenPopup({
-          scopes: ["User.Read", "GroupMember.Read.All"]
-        });
-        accessToken = tokenResponse.accessToken;
-        await loadGroupMembers();
+        // Try popup first
+        try {
+          const tokenResponse = await msalInstance.acquireTokenPopup({
+            scopes: ["User.Read", "GroupMember.Read.All"]
+          });
+          accessToken = tokenResponse.accessToken;
+          await loadGroupMembers();
+        } catch (popupError) {
+          console.log("Token popup failed, falling back to redirect:", popupError);
+          // Fallback to redirect
+          await msalInstance.acquireTokenRedirect({
+            scopes: ["User.Read", "GroupMember.Read.All"]
+          });
+        }
       } catch (err) {
         console.error(err);
-        alert("Failed to acquire token.");
+        alert("Failed to acquire token. Please try signing in again.");
       }
     }
   }
@@ -443,21 +451,28 @@ async function signIn() {
       prompt: "select_account"
     };
 
-    console.log("Calling loginPopup...");
-    const response = await msalInstance.loginPopup(loginRequest);
-    console.log("Login response:", response);
-    
-    if (response) {
-      const account = response.account;
-      msalInstance.setActiveAccount(account);
-      showWelcomeUI(account);
-      getTokenAndLoadMembers();
-    } else {
-      console.error("No response from loginPopup");
-      alert("Sign in failed. Please try again.");
+    // Try popup first
+    try {
+      console.log("Attempting popup login...");
+      const response = await msalInstance.loginPopup(loginRequest);
+      console.log("Popup login response:", response);
+      
+      if (response) {
+        const account = response.account;
+        msalInstance.setActiveAccount(account);
+        showWelcomeUI(account);
+        getTokenAndLoadMembers();
+        return;
+      }
+    } catch (popupError) {
+      console.log("Popup failed, falling back to redirect:", popupError);
     }
+
+    // Fallback to redirect
+    console.log("Attempting redirect login...");
+    await msalInstance.loginRedirect(loginRequest);
   } catch (error) {
     console.error("Error during sign in:", error);
-    alert("Sign in failed. Please try again.");
+    alert("Sign in failed. Please try again. If the issue persists, please check your browser's popup blocker settings.");
   }
 } 
