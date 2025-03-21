@@ -3,7 +3,7 @@ const msalConfig = {
   auth: {
     clientId: "b1f8ddfa-6663-4192-9137-5c30eb6673ae",
     authority: "https://login.microsoftonline.com/2b21e8b5-c462-4f9d-952f-f47b9456b623",
-    redirectUri: "https://roudika.github.io/PaulContactList/Index.html"
+    redirectUri: window.location.origin + window.location.pathname
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -408,18 +408,27 @@ function copyToClipboard(text) {
   });
 }
 
-// Add this new function after setupEventListeners
+// Update the signIn function
 async function signIn() {
   try {
+    console.log("Starting sign in process...");
     const loginRequest = {
-      scopes: ["User.Read", "GroupMember.Read.All"]
+      scopes: ["User.Read", "GroupMember.Read.All"],
+      prompt: "select_account"
     };
 
-    await msalInstance.loginPopup(loginRequest);
-    const account = msalInstance.getAllAccounts()[0];
-    msalInstance.setActiveAccount(account);
-    showWelcomeUI(account);
-    getTokenAndLoadMembers();
+    const response = await msalInstance.loginPopup(loginRequest);
+    console.log("Login response:", response);
+    
+    if (response) {
+      const account = response.account;
+      msalInstance.setActiveAccount(account);
+      showWelcomeUI(account);
+      getTokenAndLoadMembers();
+    } else {
+      console.error("No response from loginPopup");
+      alert("Sign in failed. Please try again.");
+    }
   } catch (error) {
     console.error("Error during sign in:", error);
     alert("Sign in failed. Please try again.");
