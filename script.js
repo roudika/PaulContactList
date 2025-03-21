@@ -45,18 +45,38 @@ const msalInstance = new msal.PublicClientApplication(msalConfig);
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("DOM Content Loaded");
+  
+  // Initialize the sign-in modal
+  const signInModal = new bootstrap.Modal(document.getElementById('signInModal'));
+  
   // Handle redirect promise after login
   msalInstance.handleRedirectPromise().then(handleResponse).catch(err => {
-    console.error(err);
+    console.error("Redirect promise error:", err);
+    // Show sign-in modal if there's an error
+    signInModal.show();
   });
 
   // Set up event listeners
   setupEventListeners();
+  
+  // Show sign-in modal by default
+  signInModal.show();
 });
 
 function setupEventListeners() {
   // Add sign in button handler
-  document.getElementById('signin').addEventListener('click', signIn);
+  const signInButton = document.getElementById('signin');
+  console.log("Setting up sign in button handler...");
+  if (signInButton) {
+    signInButton.addEventListener('click', (e) => {
+      console.log("Sign in button clicked!");
+      e.preventDefault(); // Prevent any default form submission
+      signIn();
+    });
+  } else {
+    console.error("Sign in button not found!");
+  }
 
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
@@ -127,8 +147,14 @@ function handleResponse(resp) {
     const currentAccounts = msalInstance.getAllAccounts();
     if (!currentAccounts || currentAccounts.length === 0) {
       // No accounts, show sign in modal
-      const signInModal = new bootstrap.Modal(document.getElementById('signInModal'));
-      signInModal.show();
+      const signInModal = document.getElementById('signInModal');
+      const modalInstance = bootstrap.Modal.getInstance(signInModal);
+      if (modalInstance) {
+        modalInstance.hide();
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) backdrop.remove();
+        document.body.classList.remove('modal-open');
+      }
     } else {
       // Account exists, set active account and show welcome
       msalInstance.setActiveAccount(currentAccounts[0]);
@@ -417,6 +443,7 @@ async function signIn() {
       prompt: "select_account"
     };
 
+    console.log("Calling loginPopup...");
     const response = await msalInstance.loginPopup(loginRequest);
     console.log("Login response:", response);
     
