@@ -3,7 +3,7 @@ const msalConfig = {
   auth: {
     clientId: "b1f8ddfa-6663-4192-9137-5c30eb6673ae",
     authority: "https://login.microsoftonline.com/2b21e8b5-c462-4f9d-952f-f47b9456b623",
-    redirectUri: "http://localhost:5500/Index.html"
+    redirectUri: "https://roudika.github.io/PaulContactList/Index.html"
   },
   cache: {
     cacheLocation: "sessionStorage",
