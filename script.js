@@ -145,6 +145,17 @@ function handleResponse(resp) {
     // If response is non-null, process it
     const account = resp.account;
     msalInstance.setActiveAccount(account);
+    
+    // Close the sign-in modal if it's open
+    const signInModal = document.getElementById('signInModal');
+    const modalInstance = bootstrap.Modal.getInstance(signInModal);
+    if (modalInstance) {
+      modalInstance.hide();
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) backdrop.remove();
+      document.body.classList.remove('modal-open');
+    }
+    
     showWelcomeUI(account);
     getTokenAndLoadMembers();
   } else {

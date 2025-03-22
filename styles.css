@@ -193,6 +193,34 @@ body {
 
 .contact-card {
   transition: transform 0.2s ease;
+  height: 100%;
+  margin-bottom: 1rem;
+}
+
+#contactList {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -0.5rem;
+}
+
+#contactList > div {
+  padding: 0 0.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .contact-card {
+    margin-bottom: 0;
+  }
+  
+  #contactList {
+    margin: 0 -1rem;
+  }
+  
+  #contactList > div {
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
 }
 
 .quick-actions {
