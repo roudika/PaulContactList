@@ -3,7 +3,7 @@ const msalConfig = {
   auth: {
     clientId: "b1f8ddfa-6663-4192-9137-5c30eb6673ae",
     authority: "https://login.microsoftonline.com/2b21e8b5-c462-4f9d-952f-f47b9456b623",
-    redirectUri: "https://roudika.github.io/PaulContactList/Index.html"
+    redirectUri: window.location.origin + "/PaulContactList/Index.html"
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -48,9 +48,12 @@ const msalInstance = new msal.PublicClientApplication(msalConfig);
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
   console.log("DOM Content Loaded");
+  console.log("Current URL:", window.location.href);
+  console.log("MSAL Config:", msalConfig);
   
   // Handle redirect promise
   msalInstance.handleRedirectPromise().then(response => {
+    console.log("Redirect promise response:", response);
     if (response) {
       // User is already signed in
       console.log("Got response from redirect:", response);
@@ -60,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       // Check if user is already signed in
       const accounts = msalInstance.getAllAccounts();
+      console.log("Existing accounts:", accounts);
       if (accounts.length > 0) {
         console.log("Found existing account:", accounts[0]);
         msalInstance.setActiveAccount(accounts[0]);
@@ -133,7 +137,9 @@ function setupEventListeners() {
 
   // Logout handler
   document.getElementById('logoutBtn').addEventListener('click', () => {
+    console.log("Logout button clicked");
     msalInstance.logoutRedirect().then(() => {
+      console.log("Logout successful");
       accessToken = "";
       allMembers = [];
       document.getElementById('userGreeting').classList.add('d-none');
@@ -141,6 +147,8 @@ function setupEventListeners() {
       document.getElementById('signin').classList.remove('d-none');
       document.getElementById('contactList').innerHTML = '';
       document.getElementById('totalContacts').textContent = '0';
+    }).catch(error => {
+      console.error("Logout failed:", error);
     });
   });
 }
@@ -176,8 +184,14 @@ function showWelcomeUI(account) {
 
 function signIn() {
   console.log("Initiating sign in with redirect...");
+  console.log("Current URL:", window.location.href);
+  console.log("Redirect URI:", msalConfig.auth.redirectUri);
+  
   msalInstance.loginRedirect({
     scopes: ["User.Read", "GroupMember.Read.All"]
+  }).catch(error => {
+    console.error("Sign in failed:", error);
+    alert("Failed to sign in. Please try again.");
   });
 }
 
