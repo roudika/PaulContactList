@@ -174,7 +174,7 @@ function showWelcomeUI(account) {
   
   console.log("Showing welcome UI for account:", account);
   const userGreeting = document.getElementById('userGreeting');
-  userGreeting.innerHTML = `<i class="bi bi-person-circle me-1"></i>Hello, ${account.name}!`;
+  userGreeting.textContent = `Hello, ${account.name}!`;
   userGreeting.classList.remove('d-none');
   
   // Show logout button and hide sign in button
@@ -184,7 +184,10 @@ function showWelcomeUI(account) {
   // Load user's profile picture
   const userProfilePic = document.getElementById('userProfilePic');
   if (userProfilePic) {
-    loadProfilePicture(account.localAccountId, userProfilePic);
+    // Use the user's ID from the account object
+    const userId = account.localAccountId || account.id;
+    console.log("Loading profile picture for user:", userId);
+    loadProfilePicture(userId, userProfilePic);
   }
   
   // Load contacts
