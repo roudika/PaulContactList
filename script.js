@@ -1,9 +1,9 @@
 // MSAL Configuration
 const msalConfig = {
   auth: {
-    clientId: "b1f8ddfa-6663-4192-9137-5c30eb6673ae",
-    authority: "https://login.microsoftonline.com/2b21e8b5-c462-4f9d-952f-f47b9456b623",
-    redirectUri: "https://roudika.github.io/PaulContactList/Index.html"
+    clientId: "YOUR_CLIENT_ID",
+    authority: "https://login.microsoftonline.com/common",
+    redirectUri: window.location.origin + "/login.html"
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -17,18 +17,20 @@ const msalConfig = {
           return;
         }
         switch (level) {
-          case msal.LogLevel.Error:
+          case LogLevel.Error:
             console.error(message);
-            break;
-          case msal.LogLevel.Info:
+            return;
+          case LogLevel.Info:
             console.info(message);
-            break;
-          case msal.LogLevel.Verbose:
+            return;
+          case LogLevel.Verbose:
             console.debug(message);
-            break;
-          case msal.LogLevel.Warning:
+            return;
+          case LogLevel.Warning:
             console.warn(message);
-            break;
+            return;
+          default:
+            return;
         }
       }
     }
@@ -47,26 +49,28 @@ const msalInstance = new msal.PublicClientApplication(msalConfig);
 document.addEventListener('DOMContentLoaded', () => {
   console.log("DOM Content Loaded");
   
-  // Initialize the sign-in modal
-  const signInModal = document.getElementById('signInModal');
-  const modalInstance = new bootstrap.Modal(signInModal);
-  
-  // Handle redirect promise after login
-  msalInstance.handleRedirectPromise().then(handleResponse).catch(err => {
-    console.error("Redirect promise error:", err);
-    // Show sign-in modal if there's an error
-    modalInstance.show();
+  // Handle redirect promise
+  msalInstance.handleRedirectPromise().then(response => {
+    if (response) {
+      // User is already signed in
+      showWelcomeUI(response.account);
+    } else {
+      // Check if user is already signed in
+      const accounts = msalInstance.getAllAccounts();
+      if (accounts.length > 0) {
+        showWelcomeUI(accounts[0]);
+      } else {
+        // Redirect to login page if not authenticated
+        window.location.href = "login.html";
+      }
+    }
+  }).catch(error => {
+    console.error("Error handling redirect:", error);
+    window.location.href = "login.html";
   });
 
   // Set up event listeners
   setupEventListeners();
-  
-  // Check if we're returning from a redirect
-  const currentAccounts = msalInstance.getAllAccounts();
-  if (!currentAccounts || currentAccounts.length === 0) {
-    // Show sign-in modal only if we're not returning from a redirect
-    modalInstance.show();
-  }
 });
 
 function setupEventListeners() {
@@ -153,39 +157,11 @@ function closeSignInModal() {
   }
 }
 
-function handleResponse(resp) {
-  console.log("Handling response:", resp);
-  if (resp !== null) {
-    // If response is non-null, process it
-    const account = resp.account;
-    msalInstance.setActiveAccount(account);
-    
-    // Close the modal
-    closeSignInModal();
-    
-    showWelcomeUI(account);
-    getTokenAndLoadMembers();
-  } else {
-    // If no response, check if we have any accounts
-    const currentAccounts = msalInstance.getAllAccounts();
-    if (!currentAccounts || currentAccounts.length === 0) {
-      // No accounts, show sign in modal
-      const modalInstance = new bootstrap.Modal(document.getElementById('signInModal'));
-      modalInstance.show();
-    } else {
-      // Account exists, set active account and show welcome
-      msalInstance.setActiveAccount(currentAccounts[0]);
-      showWelcomeUI(currentAccounts[0]);
-      getTokenAndLoadMembers();
-    }
-  }
-}
-
 function showWelcomeUI(account) {
   if (!account) return;
   
   const userGreeting = document.getElementById('userGreeting');
-  userGreeting.textContent = `Hello, ${account.name}!`;
+  userGreeting.innerHTML = `<i class="bi bi-person-circle me-1"></i>Hello, ${account.name}!`;
   userGreeting.classList.remove('d-none');
   
   // Show logout button
@@ -193,6 +169,9 @@ function showWelcomeUI(account) {
   
   // Close the modal
   closeSignInModal();
+  
+  // Load contacts
+  loadContacts();
 }
 
 async function getTokenAndLoadMembers() {
