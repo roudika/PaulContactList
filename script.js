@@ -329,8 +329,8 @@ function renderContactList(contacts) {
     const imgId = `profile-pic-${contact.id}`;
     
     card.innerHTML = `
-      <div class="card shadow-sm p-3 contact-card">
-        <div class="d-flex align-items-center">
+      <div class="card shadow-sm p-3 contact-card" data-contact-id="${contact.id}">
+        <div class="d-flex align-items-start">
           <div class="profile-pic-container me-3">
             <img id="${imgId}"
                  class="profile-pic" 
@@ -341,14 +341,17 @@ function renderContactList(contacts) {
           </div>
           <div class="flex-grow-1">
             <h5 class="mb-1">${contact.displayName}</h5>
+            ${contact.jobTitle ? `
+              <div class="badge badge-title mb-2">${contact.jobTitle}</div>
+            ` : ''}
             <div class="card-text">
-              <strong>Email:</strong> 
+              <i class="bi bi-envelope me-1"></i>
               <span class="copyable" data-copy="${contact.mail}">${contact.mail}</span>
             </div>
-            ${contact.department ? `
+            ${contact.mobilePhone ? `
               <div class="card-text">
-                <strong>Dept:</strong> 
-                <span class="badge badge-department">${contact.department}</span>
+                <i class="bi bi-telephone me-1"></i>
+                <span class="copyable" data-copy="${contact.mobilePhone}">${contact.mobilePhone}</span>
               </div>
             ` : ''}
           </div>
@@ -356,6 +359,10 @@ function renderContactList(contacts) {
       </div>
     `;
     contactList.appendChild(card);
+
+    // Add click handler to the card
+    const cardElement = card.querySelector('.contact-card');
+    cardElement.addEventListener('click', () => showContactDetails(contact));
 
     // Load profile picture if not in cache
     const img = document.getElementById(imgId);
@@ -365,6 +372,56 @@ function renderContactList(contacts) {
       img.src = profilePicCache.get(contact.id);
     }
   });
+}
+
+function showContactDetails(contact) {
+  const modalBody = document.getElementById('modalBodyContent');
+  modalBody.innerHTML = `
+    <div class="d-flex align-items-center mb-4">
+      <div class="profile-pic-container me-3">
+        <img id="modal-profile-pic"
+             class="profile-pic" 
+             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%23e9ecef'/%3E%3C/svg%3E"
+             alt="${contact.displayName}">
+        <div class="profile-pic-loading"></div>
+      </div>
+      <div>
+        <h4 class="mb-1">${contact.displayName}</h4>
+        ${contact.jobTitle ? `<div class="badge badge-title mb-2">${contact.jobTitle}</div>` : ''}
+        ${contact.department ? `<div class="text-muted mb-1"><i class="bi bi-building me-1"></i>${contact.department}</div>` : ''}
+      </div>
+    </div>
+    <div class="contact-details">
+      <div class="detail-item">
+        <i class="bi bi-envelope me-2"></i>
+        <span class="copyable" data-copy="${contact.mail}">${contact.mail}</span>
+      </div>
+      ${contact.mobilePhone ? `
+        <div class="detail-item">
+          <i class="bi bi-telephone me-2"></i>
+          <span class="copyable" data-copy="${contact.mobilePhone}">${contact.mobilePhone}</span>
+        </div>
+      ` : ''}
+      ${contact.userPrincipalName ? `
+        <div class="detail-item">
+          <i class="bi bi-person me-2"></i>
+          <span>${contact.userPrincipalName}</span>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  // Load profile picture for modal
+  const modalImg = document.getElementById('modal-profile-pic');
+  if (modalImg && profilePicCache.has(contact.id)) {
+    modalImg.src = profilePicCache.get(contact.id);
+  } else if (modalImg) {
+    loadProfilePicture(contact.id, modalImg);
+  }
+
+  // Show the modal
+  const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+  modal.show();
 }
 
 async function loadProfilePicture(userId, imgElement) {
