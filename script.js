@@ -125,10 +125,9 @@ function setupEventListeners() {
       allMembers = [];
       document.getElementById('userGreeting').classList.add('d-none');
       document.getElementById('logoutBtn').classList.add('d-none');
+      document.getElementById('signin').classList.remove('d-none');
       document.getElementById('contactList').innerHTML = '';
       document.getElementById('totalContacts').textContent = '0';
-      const signInModal = new bootstrap.Modal(document.getElementById('signInModal'));
-      signInModal.show();
     });
   });
 }
@@ -154,11 +153,9 @@ function showWelcomeUI(account) {
   userGreeting.innerHTML = `<i class="bi bi-person-circle me-1"></i>Hello, ${account.name}!`;
   userGreeting.classList.remove('d-none');
   
-  // Show logout button
+  // Show logout button and hide sign in button
   document.getElementById('logoutBtn').classList.remove('d-none');
-  
-  // Close the modal
-  closeSignInModal();
+  document.getElementById('signin').classList.add('d-none');
   
   // Load contacts
   loadContacts();
