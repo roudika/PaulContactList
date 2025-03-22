@@ -186,35 +186,13 @@ function signIn() {
   console.log("Initiating sign in with redirect...");
   console.log("Current URL:", window.location.href);
   console.log("Redirect URI:", msalConfig.auth.redirectUri);
-  console.log("MSAL Instance:", msalInstance);
   
-  // Try to get a token first
-  msalInstance.acquireTokenSilent({
+  // Use only redirect method
+  msalInstance.loginRedirect({
     scopes: ["User.Read", "GroupMember.Read.All"]
-  }).then(response => {
-    console.log("Got token silently:", response);
-    showWelcomeUI(response.account);
-    getTokenAndLoadMembers();
   }).catch(error => {
-    console.log("Silent token acquisition failed, trying interactive login:", error);
-    
-    // Try interactive login
-    msalInstance.loginPopup({
-      scopes: ["User.Read", "GroupMember.Read.All"]
-    }).then(response => {
-      console.log("Login popup successful:", response);
-      showWelcomeUI(response.account);
-      getTokenAndLoadMembers();
-    }).catch(error => {
-      console.error("Login popup failed:", error);
-      // If popup fails, try redirect as last resort
-      msalInstance.loginRedirect({
-        scopes: ["User.Read", "GroupMember.Read.All"]
-      }).catch(error => {
-        console.error("All login attempts failed:", error);
-        alert("Failed to sign in. Please try again. Error: " + error.message);
-      });
-    });
+    console.error("Sign in failed:", error);
+    alert("Failed to sign in. Please try again. Error: " + error.message);
   });
 }
 
