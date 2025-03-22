@@ -374,16 +374,53 @@ function renderContactList(contacts) {
   });
 }
 
+async function loadProfilePicture(userId, imgElement) {
+  try {
+    // If the image is already in cache, use it immediately
+    if (profilePicCache.has(userId)) {
+      imgElement.src = profilePicCache.get(userId);
+      return;
+    }
+
+    const response = await fetch(`https://graph.microsoft.com/v1.0/users/${userId}/photo/$value`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      profilePicCache.set(userId, url);
+      
+      // Only update if the element still exists
+      if (document.getElementById(imgElement.id)) {
+        imgElement.src = url;
+      }
+    } else {
+      // If no photo is available, use a default avatar
+      const defaultAvatar = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${imgElement.width}' height='${imgElement.height}' viewBox='0 0 ${imgElement.width} ${imgElement.height}'%3E%3Crect width='${imgElement.width}' height='${imgElement.height}' fill='%23e9ecef'/%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z' fill='%23999'/%3E%3C/svg%3E`;
+      imgElement.src = defaultAvatar;
+    }
+  } catch (error) {
+    console.error(`Failed to load profile picture for user ${userId}:`, error);
+    // Use default avatar on error
+    const defaultAvatar = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${imgElement.width}' height='${imgElement.height}' viewBox='0 0 ${imgElement.width} ${imgElement.height}'%3E%3Crect width='${imgElement.width}' height='${imgElement.height}' fill='%23e9ecef'/%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z' fill='%23999'/%3E%3C/svg%3E`;
+    imgElement.src = defaultAvatar;
+  }
+}
+
 function showContactDetails(contact) {
   const modalBody = document.getElementById('modalBodyContent');
   modalBody.innerHTML = `
     <div class="d-flex align-items-center mb-4">
-      <div class="profile-pic-container me-3">
+      <div class="profile-pic-container me-3" style="width: 96px; height: 96px;">
         <img id="modal-profile-pic"
              class="profile-pic" 
-             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%23e9ecef'/%3E%3C/svg%3E"
-             alt="${contact.displayName}">
-        <div class="profile-pic-loading"></div>
+             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' fill='%23e9ecef'/%3E%3Cpath d='M48 48c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0 4c-5.34 0-16 2.68-16 8v4h32v-4c0-5.32-10.66-8-16-8z' fill='%23999'/%3E%3C/svg%3E"
+             alt="${contact.displayName}"
+             style="width: 96px; height: 96px;">
+        <div class="profile-pic-loading" style="width: 96px; height: 96px;"></div>
       </div>
       <div>
         <h4 class="mb-1">${contact.displayName}</h4>
@@ -413,43 +450,13 @@ function showContactDetails(contact) {
 
   // Load profile picture for modal
   const modalImg = document.getElementById('modal-profile-pic');
-  if (modalImg && profilePicCache.has(contact.id)) {
-    modalImg.src = profilePicCache.get(contact.id);
-  } else if (modalImg) {
+  if (modalImg) {
     loadProfilePicture(contact.id, modalImg);
   }
 
   // Show the modal
   const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
   modal.show();
-}
-
-async function loadProfilePicture(userId, imgElement) {
-  try {
-    const response = await fetch(`https://graph.microsoft.com/v1.0/users/${userId}/photo/$value`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-
-    if (response.ok) {
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      profilePicCache.set(userId, url);
-      
-      // Create a new image to preload
-      const tempImg = new Image();
-      tempImg.onload = () => {
-        // Only update the source if the element still exists
-        if (document.getElementById(imgElement.id)) {
-          imgElement.src = url;
-        }
-      };
-      tempImg.src = url;
-    }
-  } catch (error) {
-    console.error(`Failed to load profile picture for user ${userId}:`, error);
-  }
 }
 
 function loadContacts() {
