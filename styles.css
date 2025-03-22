@@ -113,6 +113,9 @@ body {
   position: relative;
   width: 36px;
   height: 36px;
+  background-color: var(--bs-gray-200);
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 .profile-pic {
@@ -120,12 +123,12 @@ body {
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  background-color: var(--bs-gray-200);
+  opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.profile-pic.loading {
-  opacity: 0;
+.profile-pic:not(.loading) {
+  opacity: 1;
 }
 
 .profile-pic-loading {
@@ -151,7 +154,7 @@ body {
   }
 }
 
-[data-bs-theme="dark"] .profile-pic,
+[data-bs-theme="dark"] .profile-pic-container,
 [data-bs-theme="dark"] .profile-pic-loading {
   background-color: var(--bs-gray-700);
 }

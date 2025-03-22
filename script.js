@@ -333,8 +333,8 @@ function renderContactList(contacts) {
         <div class="d-flex align-items-center">
           <div class="profile-pic-container me-3">
             <img id="${imgId}"
-                 class="profile-pic" 
-                 src="https://via.placeholder.com/48"
+                 class="profile-pic loading" 
+                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' fill='%23e9ecef'/%3E%3C/svg%3E"
                  alt="${contact.displayName}"
                  data-user-id="${contact.id}">
             <div class="profile-pic-loading"></div>
@@ -363,6 +363,7 @@ function renderContactList(contacts) {
       loadProfilePicture(contact.id, img);
     } else if (img && profilePicCache.has(contact.id)) {
       img.src = profilePicCache.get(contact.id);
+      img.classList.remove('loading');
     }
   });
 }
@@ -379,11 +380,23 @@ async function loadProfilePicture(userId, imgElement) {
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       profilePicCache.set(userId, url);
-      imgElement.src = url;
+      
+      // Create a new image to preload
+      const tempImg = new Image();
+      tempImg.onload = () => {
+        imgElement.src = url;
+        imgElement.classList.remove('loading');
+      };
+      tempImg.src = url;
+    } else {
+      // If no photo is available, use a default avatar
+      imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' fill='%23e9ecef'/%3E%3C/svg%3E";
+      imgElement.classList.remove('loading');
     }
   } catch (error) {
     console.error(`Failed to load profile picture for user ${userId}:`, error);
-  } finally {
+    // Use default avatar on error
+    imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' fill='%23e9ecef'/%3E%3C/svg%3E";
     imgElement.classList.remove('loading');
   }
 }
