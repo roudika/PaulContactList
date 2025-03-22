@@ -195,12 +195,21 @@ function showWelcomeUI(account) {
   
   // Close the modal if it's open
   const signInModal = document.getElementById('signInModal');
-  const modalInstance = bootstrap.Modal.getInstance(signInModal);
-  if (modalInstance) {
-    modalInstance.hide();
+  if (signInModal) {
+    const modalInstance = bootstrap.Modal.getInstance(signInModal);
+    if (modalInstance) {
+      modalInstance.hide();
+    } else {
+      // If modal instance doesn't exist, create one and hide it
+      const newModalInstance = new bootstrap.Modal(signInModal);
+      newModalInstance.hide();
+    }
+    // Remove backdrop and modal-open class
     const backdrop = document.querySelector('.modal-backdrop');
     if (backdrop) backdrop.remove();
     document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
   }
 }
 
