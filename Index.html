@@ -35,10 +35,18 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <ul class="navbar-nav ms-auto align-items-center gap-3">
         <li class="nav-item">
-          <span id="userGreeting" class="navbar-text d-none">
-            <i class="bi bi-person-circle me-1"></i>
-            Hello, Guest!
-          </span>
+          <div class="d-flex align-items-center">
+            <div class="profile-pic-container me-2">
+              <img id="userProfilePic" class="profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23e9ecef'/%3E%3Cpath d='M16 16c1.96 0 3.56-1.59 3.56-3.56S17.96 8.88 16 8.88s-3.56 1.59-3.56 3.56S14.04 16 16 16zm0 1.78c-2.37 0-7.11 1.19-7.11 3.56v1.78h14.22v-1.78c0-2.37-4.74-3.56-7.11-3.56z' fill='%23999'/%3E%3C/svg%3E" alt="User profile">
+            </div>
+            <span id="userGreeting" class="navbar-text d-none">
+              <i class="bi bi-person-circle me-1"></i>
+              Hello, Guest!
+            </span>
+          </div>
+        </li>
+        <li class="nav-item">
+          <div class="vr text-white opacity-75 mx-2"></div>
         </li>
         <li class="nav-item">
           <button id="darkModeToggle" class="btn btn-outline-light btn-sm rounded-pill" title="Toggle dark mode">

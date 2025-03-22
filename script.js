@@ -180,6 +180,12 @@ function showWelcomeUI(account) {
   // Show logout button and hide sign in button
   document.getElementById('logoutBtn').classList.remove('d-none');
   document.getElementById('signin').classList.add('d-none');
+
+  // Load user's profile picture
+  const userProfilePic = document.getElementById('userProfilePic');
+  if (userProfilePic) {
+    loadProfilePicture(account.localAccountId, userProfilePic);
+  }
   
   // Load contacts
   loadContacts();
