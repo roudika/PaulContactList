@@ -182,31 +182,27 @@ function showWelcomeUI(account) {
 
 async function getTokenAndLoadMembers() {
   try {
+    console.log("Attempting to get token silently...");
     const tokenResponse = await msalInstance.acquireTokenSilent({
       scopes: ["User.Read", "GroupMember.Read.All"],
       account: msalInstance.getActiveAccount()
     });
+    console.log("Got token successfully");
     accessToken = tokenResponse.accessToken;
     await loadGroupMembers();
   } catch (error) {
+    console.error("Error getting token:", error);
     if (error instanceof msal.InteractionRequiredAuthError) {
       try {
-        // Try popup first
-        try {
-          const tokenResponse = await msalInstance.acquireTokenPopup({
-            scopes: ["User.Read", "GroupMember.Read.All"]
-          });
-          accessToken = tokenResponse.accessToken;
-          await loadGroupMembers();
-        } catch (popupError) {
-          console.log("Token popup failed, falling back to redirect:", popupError);
-          // Fallback to redirect
-          await msalInstance.acquireTokenRedirect({
-            scopes: ["User.Read", "GroupMember.Read.All"]
-          });
-        }
-      } catch (err) {
-        console.error(err);
+        console.log("Token expired, trying popup...");
+        const tokenResponse = await msalInstance.acquireTokenPopup({
+          scopes: ["User.Read", "GroupMember.Read.All"]
+        });
+        console.log("Got token from popup");
+        accessToken = tokenResponse.accessToken;
+        await loadGroupMembers();
+      } catch (popupError) {
+        console.error("Popup failed:", popupError);
         alert("Failed to acquire token. Please try signing in again.");
       }
     }
@@ -266,7 +262,6 @@ function renderDepartmentSelect(members) {
 async function loadGroupMembers() {
   const groupId = "2ac0dfde-a4db-4e8a-af91-7fa805271a37";
   let endpoint = `https://graph.microsoft.com/v1.0/groups/${groupId}/members?$select=displayName,mail,mobilePhone,department,jobTitle,userPrincipalName,id&$top=999`;
-  let allMembersArray = [];
 
   document.getElementById("loading").classList.remove("d-none");
   document.getElementById("skeletonList").classList.remove("d-none");
@@ -274,10 +269,78 @@ async function loadGroupMembers() {
   document.getElementById("loading").textContent = "Loading members...";
 
   try {
-    while (endpoint) {
-      const response = await fetch(endpoint, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+    console.log("Fetching members from Graph API...");
+    const response = await fetch(endpoint, {
+      headers: { 
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-      if (!response.ok) {
-        throw new Error(`
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Graph API error:", response.status, errorText);
+      throw new Error(`Failed to fetch members: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("Got members data:", data);
+    
+    allMembers = data.value;
+    document.getElementById("totalContacts").textContent = allMembers.length;
+    document.getElementById("totalContactsLarge").textContent = allMembers.length;
+    
+    renderDepartmentSelect(allMembers);
+    renderContactList(sortContacts(allMembers));
+  } catch (error) {
+    console.error("Error loading members:", error);
+    document.getElementById("loading").textContent = "Error loading members. Please try again.";
+  } finally {
+    document.getElementById("loading").classList.add("d-none");
+    document.getElementById("skeletonList").classList.add("d-none");
+  }
+}
+
+function renderContactList(contacts) {
+  const contactList = document.getElementById('contactList');
+  contactList.innerHTML = '';
+
+  contacts.forEach(contact => {
+    const card = document.createElement('div');
+    card.className = 'col-12 col-md-6 col-lg-4';
+    card.innerHTML = `
+      <div class="card shadow-sm p-3 contact-card">
+        <div class="d-flex align-items-center">
+          <img src="https://graph.microsoft.com/v1.0/users/${contact.id}/photo/$value" 
+               class="profile-pic me-3" 
+               onerror="this.src='https://via.placeholder.com/48'"
+               alt="${contact.displayName}">
+          <div class="flex-grow-1">
+            <h5 class="mb-1">${contact.displayName}</h5>
+            <div class="card-text">
+              <strong>Email:</strong> 
+              <span class="copyable" data-copy="${contact.mail}">${contact.mail}</span>
+            </div>
+            ${contact.department ? `
+              <div class="card-text">
+                <strong>Dept:</strong> 
+                <span class="badge badge-department">${contact.department}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    contactList.appendChild(card);
+  });
+}
+
+function signIn() {
+  msalInstance.loginRedirect({
+    scopes: ["User.Read", "GroupMember.Read.All"]
+  });
+}
+
+function loadContacts() {
+  getTokenAndLoadMembers();
+}
