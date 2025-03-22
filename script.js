@@ -49,31 +49,14 @@ const msalInstance = new msal.PublicClientApplication(msalConfig);
 document.addEventListener('DOMContentLoaded', () => {
   console.log("DOM Content Loaded");
   
-  // Handle redirect promise
-  msalInstance.handleRedirectPromise().then(response => {
-    if (response) {
-      // User is already signed in
-      console.log("Got response from redirect:", response);
-      msalInstance.setActiveAccount(response.account);
-      showWelcomeUI(response.account);
-      getTokenAndLoadMembers();
-    } else {
-      // Check if user is already signed in
-      const accounts = msalInstance.getAllAccounts();
-      if (accounts.length > 0) {
-        console.log("Found existing account:", accounts[0]);
-        msalInstance.setActiveAccount(accounts[0]);
-        showWelcomeUI(accounts[0]);
-        getTokenAndLoadMembers();
-      } else {
-        // No account found, redirect to login
-        window.location.href = "login.html";
-      }
-    }
-  }).catch(error => {
-    console.error("Error handling redirect:", error);
-    window.location.href = "login.html";
-  });
+  // Check if user is already signed in
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length > 0) {
+    console.log("Found existing account:", accounts[0]);
+    msalInstance.setActiveAccount(accounts[0]);
+    showWelcomeUI(accounts[0]);
+    getTokenAndLoadMembers();
+  }
 
   // Set up event listeners
   setupEventListeners();
@@ -86,7 +69,7 @@ function setupEventListeners() {
   if (signInButton) {
     signInButton.addEventListener('click', (e) => {
       console.log("Sign in button clicked!");
-      e.preventDefault(); // Prevent any default form submission
+      e.preventDefault();
       signIn();
     });
   } else {
@@ -181,11 +164,20 @@ function showWelcomeUI(account) {
   loadContacts();
 }
 
-function signIn() {
-  console.log("Initiating sign in...");
-  msalInstance.loginRedirect({
-    scopes: ["User.Read", "GroupMember.Read.All"]
-  });
+async function signIn() {
+  try {
+    console.log("Initiating sign in with popup...");
+    const response = await msalInstance.loginPopup({
+      scopes: ["User.Read", "GroupMember.Read.All"]
+    });
+    console.log("Sign in successful:", response);
+    msalInstance.setActiveAccount(response.account);
+    showWelcomeUI(response.account);
+    getTokenAndLoadMembers();
+  } catch (error) {
+    console.error("Sign in failed:", error);
+    alert("Failed to sign in. Please try again.");
+  }
 }
 
 async function getTokenAndLoadMembers() {
