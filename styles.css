@@ -123,12 +123,7 @@ body {
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.profile-pic:not(.loading) {
-  opacity: 1;
+  background-color: var(--bs-gray-200);
 }
 
 .profile-pic-loading {
@@ -155,6 +150,7 @@ body {
 }
 
 [data-bs-theme="dark"] .profile-pic-container,
+[data-bs-theme="dark"] .profile-pic,
 [data-bs-theme="dark"] .profile-pic-loading {
   background-color: var(--bs-gray-700);
 }

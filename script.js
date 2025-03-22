@@ -333,7 +333,7 @@ function renderContactList(contacts) {
         <div class="d-flex align-items-center">
           <div class="profile-pic-container me-3">
             <img id="${imgId}"
-                 class="profile-pic loading" 
+                 class="profile-pic" 
                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' fill='%23e9ecef'/%3E%3C/svg%3E"
                  alt="${contact.displayName}"
                  data-user-id="${contact.id}">
@@ -363,7 +363,6 @@ function renderContactList(contacts) {
       loadProfilePicture(contact.id, img);
     } else if (img && profilePicCache.has(contact.id)) {
       img.src = profilePicCache.get(contact.id);
-      img.classList.remove('loading');
     }
   });
 }
@@ -384,20 +383,15 @@ async function loadProfilePicture(userId, imgElement) {
       // Create a new image to preload
       const tempImg = new Image();
       tempImg.onload = () => {
-        imgElement.src = url;
-        imgElement.classList.remove('loading');
+        // Only update the source if the element still exists
+        if (document.getElementById(imgElement.id)) {
+          imgElement.src = url;
+        }
       };
       tempImg.src = url;
-    } else {
-      // If no photo is available, use a default avatar
-      imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' fill='%23e9ecef'/%3E%3C/svg%3E";
-      imgElement.classList.remove('loading');
     }
   } catch (error) {
     console.error(`Failed to load profile picture for user ${userId}:`, error);
-    // Use default avatar on error
-    imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' fill='%23e9ecef'/%3E%3C/svg%3E";
-    imgElement.classList.remove('loading');
   }
 }
 
