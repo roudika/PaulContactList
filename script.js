@@ -45,6 +45,9 @@ let currentSort = "name";
 
 const msalInstance = new msal.PublicClientApplication(msalConfig);
 
+// Add profile picture cache
+const profilePicCache = new Map();
+
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
   console.log("DOM Content Loaded");
@@ -321,13 +324,21 @@ function renderContactList(contacts) {
   contacts.forEach(contact => {
     const card = document.createElement('div');
     card.className = 'col-12 col-md-6 col-lg-4';
+    
+    // Create a unique ID for the image
+    const imgId = `profile-pic-${contact.id}`;
+    
     card.innerHTML = `
       <div class="card shadow-sm p-3 contact-card">
         <div class="d-flex align-items-center">
-          <img src="https://graph.microsoft.com/v1.0/users/${contact.id}/photo/$value" 
-               class="profile-pic me-3" 
-               onerror="this.src='https://via.placeholder.com/48'"
-               alt="${contact.displayName}">
+          <div class="profile-pic-container me-3">
+            <img id="${imgId}"
+                 class="profile-pic" 
+                 src="https://via.placeholder.com/48"
+                 alt="${contact.displayName}"
+                 data-user-id="${contact.id}">
+            <div class="profile-pic-loading"></div>
+          </div>
           <div class="flex-grow-1">
             <h5 class="mb-1">${contact.displayName}</h5>
             <div class="card-text">
@@ -345,7 +356,36 @@ function renderContactList(contacts) {
       </div>
     `;
     contactList.appendChild(card);
+
+    // Load profile picture if not in cache
+    const img = document.getElementById(imgId);
+    if (img && !profilePicCache.has(contact.id)) {
+      loadProfilePicture(contact.id, img);
+    } else if (img && profilePicCache.has(contact.id)) {
+      img.src = profilePicCache.get(contact.id);
+    }
   });
+}
+
+async function loadProfilePicture(userId, imgElement) {
+  try {
+    const response = await fetch(`https://graph.microsoft.com/v1.0/users/${userId}/photo/$value`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      profilePicCache.set(userId, url);
+      imgElement.src = url;
+    }
+  } catch (error) {
+    console.error(`Failed to load profile picture for user ${userId}:`, error);
+  } finally {
+    imgElement.classList.remove('loading');
+  }
 }
 
 function loadContacts() {
