@@ -169,7 +169,7 @@ function closeSignInModal() {
   }
 }
 
-function showWelcomeUI(account) {
+async function showWelcomeUI(account) {
   if (!account) return;
   
   console.log("Showing welcome UI for account:", account);
@@ -181,13 +181,26 @@ function showWelcomeUI(account) {
   document.getElementById('logoutBtn').classList.remove('d-none');
   document.getElementById('signin').classList.add('d-none');
 
-  // Load user's profile picture
-  const userProfilePic = document.getElementById('userProfilePic');
-  if (userProfilePic) {
-    // Use the user's ID from the account object
-    const userId = account.localAccountId || account.id;
-    console.log("Loading profile picture for user:", userId);
-    loadProfilePicture(userId, userProfilePic);
+  // Get user's ID from Graph API
+  try {
+    const response = await fetch('https://graph.microsoft.com/v1.0/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (response.ok) {
+      const userData = await response.json();
+      console.log("Got user data:", userData);
+      
+      // Load user's profile picture
+      const userProfilePic = document.getElementById('userProfilePic');
+      if (userProfilePic) {
+        loadProfilePicture(userData.id, userProfilePic);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to get user data:", error);
   }
   
   // Load contacts
