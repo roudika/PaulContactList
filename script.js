@@ -166,6 +166,7 @@ function closeSignInModal() {
 function showWelcomeUI(account) {
   if (!account) return;
   
+  console.log("Showing welcome UI for account:", account);
   const userGreeting = document.getElementById('userGreeting');
   userGreeting.innerHTML = `<i class="bi bi-person-circle me-1"></i>Hello, ${account.name}!`;
   userGreeting.classList.remove('d-none');
@@ -178,6 +179,13 @@ function showWelcomeUI(account) {
   
   // Load contacts
   loadContacts();
+}
+
+function signIn() {
+  console.log("Initiating sign in...");
+  msalInstance.loginRedirect({
+    scopes: ["User.Read", "GroupMember.Read.All"]
+  });
 }
 
 async function getTokenAndLoadMembers() {
@@ -332,12 +340,6 @@ function renderContactList(contacts) {
       </div>
     `;
     contactList.appendChild(card);
-  });
-}
-
-function signIn() {
-  msalInstance.loginRedirect({
-    scopes: ["User.Read", "GroupMember.Read.All"]
   });
 }
 
