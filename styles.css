@@ -233,40 +233,69 @@ body {
 }
 
 @media (max-width: 768px) {
+  body {
+    background-color: var(--bs-gray-100);
+  }
+
+  [data-bs-theme="dark"] body {
+    background-color: var(--bs-gray-900);
+  }
+
+  .container {
+    padding-left: 0;
+    padding-right: 0;
+    max-width: 100%;
+  }
+
   .contact-stats {
-    padding: 0.5rem;
-    margin: -1rem -1rem 1rem -1rem;
+    margin: 0;
+    padding: 0.75rem;
     border-radius: 0;
     border-left: 0;
     border-right: 0;
-    background: var(--bs-body-bg);
+    position: sticky;
+    top: 56px;
+    z-index: 1020;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
-  .stats-number {
-    font-size: 1rem;
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    padding: 0.5rem 1rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+
+  #contactList {
+    margin-top: 56px;
+    padding-bottom: 2rem;
   }
 
   .contact-card {
-    padding: 1rem !important;
-    margin: 0 -0.5rem;
+    margin-bottom: 0.5rem;
     border-radius: 0;
-    border-left: 0;
-    border-right: 0;
-    box-shadow: none !important;
+    border: none;
     border-bottom: 1px solid var(--bs-gray-200);
+    box-shadow: none !important;
+    padding: 1rem !important;
   }
 
   [data-bs-theme="dark"] .contact-card {
     border-bottom-color: var(--bs-gray-700);
+    background-color: var(--bs-gray-900);
   }
 
   .contact-card:hover {
     transform: none;
-    background-color: var(--bs-gray-100);
-  }
-
-  [data-bs-theme="dark"] .contact-card:hover {
-    background-color: var(--bs-gray-800);
   }
 
   .contact-card .profile-pic {
@@ -281,14 +310,17 @@ body {
 
   .contact-card .card-text {
     font-size: 0.875rem;
-    margin-bottom: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
     display: flex;
     align-items: center;
   }
 
   .contact-card strong {
-    min-width: 65px;
+    min-width: 60px;
+    font-size: 0.75rem;
     color: var(--bs-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   [data-bs-theme="dark"] .contact-card strong {
@@ -298,13 +330,13 @@ body {
   .badge-department {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
-    background-color: var(--bs-gray-100);
-    border: 1px solid var(--bs-gray-200);
+    background-color: var(--bs-gray-200);
+    color: var(--bs-gray-700);
   }
 
   [data-bs-theme="dark"] .badge-department {
     background-color: var(--bs-gray-800);
-    border-color: var(--bs-gray-700);
+    color: var(--bs-gray-300);
   }
 
   .quick-actions {
@@ -317,8 +349,8 @@ body {
   }
 
   .btn-quick-action {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     padding: 0;
     display: flex;
     align-items: center;
@@ -326,6 +358,7 @@ body {
     border-radius: 50%;
     background: var(--bs-gray-100);
     border: 1px solid var(--bs-gray-200);
+    font-size: 1rem;
   }
 
   [data-bs-theme="dark"] .btn-quick-action {
@@ -333,23 +366,29 @@ body {
     border-color: var(--bs-gray-700);
   }
 
-  .container {
-    padding-left: 0;
-    padding-right: 0;
+  .input-group {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-gray-300);
+    border-radius: 8px;
+    overflow: hidden;
   }
 
-  .col-md-6, .col-lg-4 {
-    padding-left: 0;
-    padding-right: 0;
+  [data-bs-theme="dark"] .input-group {
+    border-color: var(--bs-gray-700);
   }
 
   #searchInput {
     height: 44px;
+    border: none !important;
+    padding-left: 1rem;
   }
 
   .department-select, #sortSelect {
     height: 44px;
-    border-left: 1px solid var(--bs-gray-300) !important;
+    border: none !important;
+    border-left: 1px solid var(--bs-gray-200) !important;
+    padding: 0 1rem;
+    background-color: transparent;
   }
 
   [data-bs-theme="dark"] .department-select,
@@ -357,30 +396,20 @@ body {
     border-left-color: var(--bs-gray-700) !important;
   }
 
-  .input-group {
-    border: 1px solid var(--bs-gray-300);
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--bs-body-bg);
-  }
-
-  [data-bs-theme="dark"] .input-group {
-    border-color: var(--bs-gray-700);
-  }
-
   .input-group-text {
+    border: none;
+    background: transparent;
     padding-left: 1rem;
   }
 
-  .navbar {
-    padding: 0.5rem 1rem;
-  }
-
-  .navbar-brand {
-    font-size: 1.25rem;
-  }
-
-  #totalContacts {
+  .copy-feedback {
+    bottom: env(safe-area-inset-bottom, 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    border-radius: 20px;
+    padding: 0.75rem 1.25rem;
     font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
 } 

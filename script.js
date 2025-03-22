@@ -353,10 +353,10 @@ function renderContactList(members) {
 
   members.forEach(user => {
     const col = document.createElement("div");
-    col.className = "col-12";
+    col.className = "col-12 col-md-6 col-lg-4";
 
     col.innerHTML = `
-      <div class="card contact-card shadow-sm position-relative" data-id="${user.userPrincipalName}">
+      <div class="card contact-card shadow-sm p-3 position-relative" data-id="${user.userPrincipalName}">
         <div class="quick-actions">
           <button class="btn btn-quick-action" onclick="event.stopPropagation(); copyToClipboard('${user.mail || user.userPrincipalName}')" title="Copy Email">
             <i class="bi bi-envelope"></i>
@@ -365,29 +365,29 @@ function renderContactList(members) {
             <i class="bi bi-phone"></i>
           </button>
         </div>
-        <div class="d-flex">
+        <div class="d-flex align-items-center mb-2">
           <img src="${user.photoUrl || 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/person-circle.svg'}"
                class="profile-pic me-3"
                data-user-id="${user.id}"
                alt="${user.displayName}">
-          <div class="flex-grow-1">
-            <h5 class="card-title">${user.displayName}</h5>
+          <div>
+            <h5 class="card-title mb-1">${user.displayName}</h5>
             <span class="badge-department">${user.department || 'No Department'}</span>
-            <div class="mt-2">
-              <p class="card-text">
-                <strong>Email:</strong> 
-                <span class="copyable" onclick="event.stopPropagation(); copyToClipboard('${user.mail || user.userPrincipalName}')">${user.mail || user.userPrincipalName}</span>
-              </p>
-              <p class="card-text">
-                <strong>Mobile:</strong> 
-                <span class="copyable" onclick="event.stopPropagation(); copyToClipboard('${user.mobilePhone || '-'}')">${user.mobilePhone || '-'}</span>
-              </p>
-              <p class="card-text mb-0">
-                <strong>Title:</strong> 
-                <span class="copyable" onclick="event.stopPropagation(); copyToClipboard('${user.jobTitle || '-'}')">${user.jobTitle || '-'}</span>
-              </p>
-            </div>
           </div>
+        </div>
+        <div class="contact-details">
+          <p class="card-text mb-1">
+            <strong>Email:</strong> 
+            <span class="copyable" onclick="event.stopPropagation(); copyToClipboard('${user.mail || user.userPrincipalName}')">${user.mail || user.userPrincipalName}</span>
+          </p>
+          <p class="card-text mb-1">
+            <strong>Mobile:</strong> 
+            <span class="copyable" onclick="event.stopPropagation(); copyToClipboard('${user.mobilePhone || '-'}')">${user.mobilePhone || '-'}</span>
+          </p>
+          <p class="card-text mb-0">
+            <strong>Title:</strong> 
+            <span class="copyable" onclick="event.stopPropagation(); copyToClipboard('${user.jobTitle || '-'}')">${user.jobTitle || '-'}</span>
+          </p>
         </div>
       </div>
     `;
