@@ -17,16 +17,16 @@ const msalConfig = {
           return;
         }
         switch (level) {
-          case LogLevel.Error:
+          case msal.LogLevel.Error:
             console.error(message);
             return;
-          case LogLevel.Info:
+          case msal.LogLevel.Info:
             console.info(message);
             return;
-          case LogLevel.Verbose:
+          case msal.LogLevel.Verbose:
             console.debug(message);
             return;
-          case LogLevel.Warning:
+          case msal.LogLevel.Warning:
             console.warn(message);
             return;
           default:
