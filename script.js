@@ -1,9 +1,9 @@
 // MSAL Configuration
 const msalConfig = {
   auth: {
-    clientId: "YOUR_CLIENT_ID",
-    authority: "https://login.microsoftonline.com/common",
-    redirectUri: window.location.origin + "/login.html"
+    clientId: "b1f8ddfa-6663-4192-9137-5c30eb6673ae",
+    authority: "https://login.microsoftonline.com/2b21e8b5-c462-4f9d-952f-f47b9456b623",
+    redirectUri: "https://roudika.github.io/PaulContactList/Index.html"
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -53,14 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
   msalInstance.handleRedirectPromise().then(response => {
     if (response) {
       // User is already signed in
+      console.log("Got response from redirect:", response);
+      msalInstance.setActiveAccount(response.account);
       showWelcomeUI(response.account);
+      getTokenAndLoadMembers();
     } else {
       // Check if user is already signed in
       const accounts = msalInstance.getAllAccounts();
       if (accounts.length > 0) {
+        console.log("Found existing account:", accounts[0]);
+        msalInstance.setActiveAccount(accounts[0]);
         showWelcomeUI(accounts[0]);
+        getTokenAndLoadMembers();
       } else {
-        // Redirect to login page if not authenticated
+        // No account found, redirect to login
         window.location.href = "login.html";
       }
     }
